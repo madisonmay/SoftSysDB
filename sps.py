@@ -19,10 +19,10 @@ def sps(start, goal, successors):
         for i, frontier in enumerate(frontiers):    
             path = frontier.pop(0)
             s = path[-1]
-            for actor, state in successors(s):
+            for action, state in successors(s):
                 if state not in exploreds[i]:
                     exploreds[i].add(state)
-                    new_path = path + [actor, state]
+                    new_path = path + [action, state]
 
                     if state in exploreds[abs(i-1)]:
                         for other_path in frontiers[abs(i-1)]:
@@ -32,52 +32,22 @@ def sps(start, goal, successors):
                         frontier.append(new_path)
     return False
 
-if __name__ == "__main__":
-    d = joblib.load('actors.jl')
-    print "Loaded"
+both = joblib.load('both.jl')
+inverted_both = joblib.load('inverted_both.jl')
+print "Files loaded."
 
-    inverted = defaultdict(set)
-    for k, v in d.items():
-        for n in v:
-            inverted[n].add(k)
+def successors(person):
+    states = []
+    visited_people = set()
+    for movie in both[person]:
+        people = inverted_both[movie]
+        for new_person in people:
+            if new_person not in visited_people:
+                visited_people.add(new_person)
+                states.append((movie, new_person))
+    return states
 
-    print "Inverted"
-    joblib.dump(inverted, "inverted.jl")
-
-    final = defaultdict(dict)
-    for k, v in d.items():
-        for n in v:
-            final[k][n] = inverted[n]
-
-    print "Final"
-
-    joblib.dump(final, "final.jl")
-
-    def successors(state):
-        states = []
-        new_nodes = set()
-        for k, v in final[state].items():
-            for new_state in v:
-                if new_state not in new_nodes:
-                    new_nodes.add(new_state)
-                    states.append((k, new_state))
-        return states
     
-    print "D", d['Hanks, Tom']
-    print "Inverted", inverted['Hanks, Tom']
-    print "Final", final['Hanks, Tom']
+if __name__ == "__main__":
 
-    print "D", d['Willis, Bruce']
-    print "Inverted", inverted['Willis, Bruce']
-    print "Final", final['Willis, Bruce']
-    print sps('Hanks, Tom', 'Willis, Bruce', successors)
-
-
-"""
-Linked List
-
-0x01 --> [value, 0x02]
-0x02 --> [value, 0x72]
-0x72 --> [value, 0x01]
-0x84 --> [value, '\0']
-"""
+    print sps('Watson, Emma (II)', 'Monroe, Marilyn', successors)

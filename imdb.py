@@ -94,5 +94,5 @@ if __name__ == '__main__':
         global d
         d[actor].add(title)
 
-    process_file('actors.list.gz', add_to_dict)
-    joblib.dump(d, "actors.jl")
+    process_file('actresses.list.gz', add_to_dict)
+    joblib.dump(d, "actresses.jl")
