@@ -96,3 +96,8 @@ if __name__ == '__main__':
 
     process_file('actresses.list.gz', add_to_dict)
     joblib.dump(d, "actresses.jl")
+
+    d = defaultdict(set)
+
+    process_file('actors.list.gz', add_to_dict)
+    joblib.dump(d, "actors.jl")

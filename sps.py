@@ -1,13 +1,6 @@
 from collections import defaultdict
 from sklearn.externals import joblib
-
-# d = {'A': [1, 2, 3],
-#      'B': [2, 4, 6],
-#      'C': [6, 12, 18],
-#      'D': [4, 7, 8, 9],
-#      'E': [9, 12],
-#      'F': [3],
-#      'G': [18]}
+import redis
 
 def sps(start, goal, successors):
     
@@ -23,7 +16,6 @@ def sps(start, goal, successors):
                 if state not in exploreds[i]:
                     exploreds[i].add(state)
                     new_path = path + [action, state]
-
                     if state in exploreds[abs(i-1)]:
                         for other_path in frontiers[abs(i-1)]:
                             if other_path[-1] == state:
@@ -32,16 +24,13 @@ def sps(start, goal, successors):
                         frontier.append(new_path)
     return False
 
-both = joblib.load('both.jl')
-inverted_both = joblib.load('inverted_both.jl')
-print "Files loaded."
+r = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 def successors(person):
     states = []
     visited_people = set()
-    for movie in both[person]:
-        people = inverted_both[movie]
-        for new_person in people:
+    for movie in r.smembers(person):
+        for new_person in r.smembers(movie):
             if new_person not in visited_people:
                 visited_people.add(new_person)
                 states.append((movie, new_person))
@@ -50,4 +39,4 @@ def successors(person):
     
 if __name__ == "__main__":
 
-    print sps('Watson, Emma (II)', 'Monroe, Marilyn', successors)
+    print sps('Watson, Emma (II)', 'Khan, Amir (I)', successors)
