@@ -3,12 +3,15 @@ from sklearn.externals import joblib
 import redis
 
 def sps(start, goal, successors):
-    
+    """
+    Generic bidirectional shortest path search
+    """
+
     frontiers = [[[start]], [[goal]]]
     exploreds = [set(), set()]
 
     while all(frontiers):
-        #breadth first search
+        # generic bidirectional breadth first search
         for i, frontier in enumerate(frontiers):    
             path = frontier.pop(0)
             s = path[-1]
@@ -27,6 +30,9 @@ def sps(start, goal, successors):
 r = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 def successors(person):
+    """
+    Generate edges connected to person
+    """
     states = []
     visited_people = set()
     for movie in r.smembers(person):
@@ -38,5 +44,4 @@ def successors(person):
 
     
 if __name__ == "__main__":
-
     print sps('Watson, Emma (II)', 'Khan, Amir (I)', successors)
