@@ -9,19 +9,25 @@ def sps(start, goal, successors):
 
     frontiers = [[[start]], [[goal]]]
     exploreds = [set(), set()]
+    # maintain sets of visited states for efficiency
 
     while all(frontiers):
         # generic bidirectional breadth first search
         for i, frontier in enumerate(frontiers):    
             path = frontier.pop(0)
             s = path[-1]
+
+            # generate a list of nodes that can be reached from the given node
             for action, state in successors(s):
                 if state not in exploreds[i]:
+                    # a new node has been found
                     exploreds[i].add(state)
                     new_path = path + [action, state]
+                    # check if the node exists in the other tree
                     if state in exploreds[abs(i-1)]:
                         for other_path in frontiers[abs(i-1)]:
                             if other_path[-1] == state:
+                                # solution found
                                 return new_path + other_path[:-1][::-1]
                     else:
                         frontier.append(new_path)
